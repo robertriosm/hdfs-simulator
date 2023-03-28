@@ -3,7 +3,7 @@ import re
 
 print('\nwelcome to fakedfs\n')
 
-createRegex = r'^hdfs\ dfs\ -mkdir\ \/[a-zA-Z0-9_\-]+(\/[a-zA-Z0-9_\-]+)*$'
+createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 op = False
 ye = ''
 consoleDir = ">>> "
@@ -13,9 +13,26 @@ while not op:
 
     ye = input(consoleDir)
 
+    # Create 
     if re.match(createRegex, ye):
-        dirname = ye.split(' ')[-1]
+        dirname = ye.split(' ')
+
         print(dirname)
+
+    # List
+
+
+    # Disable
+
+    # Is_enabled
+
+    # Alter
+
+    # Drop
+
+    # Drop all
+
+    # Describe
 
     if ye == 'exit':
         op = True
