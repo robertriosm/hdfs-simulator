@@ -3,7 +3,16 @@ import re
 
 print('\nwelcome to fakedfs\n')
 
+# regex para leer el input
 createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+listRegex = r'^list\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+disableRegex = r'^disable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+Is_enabledRegex = r'^is enabled\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+AlterRegex = r'^alter\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+DropRegex = r'^drop\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+DropAllRegex = r'^drop all\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+DescribeRegex = r'^describe\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+
 op = False
 ye = ''
 consoleDir = ">>> "
