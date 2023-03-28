@@ -24,7 +24,11 @@ while not op:
 
     # Create 
     if re.match(createRegex, ye):
-        dirname = ye.split(' ')
+        dirname = ye.split(' ')[1:]
+        for i in dirname:
+            if i[-1] == ',':
+                dirname = i[:-1]
+        
 
         print(dirname)
 
