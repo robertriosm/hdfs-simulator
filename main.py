@@ -1,14 +1,21 @@
 from functions import *
+import re
 
 print('\nwelcome to fakedfs\n')
 
+createRegex = r'^hdfs\ dfs\ -mkdir\ \/[a-zA-Z0-9_\-]+(\/[a-zA-Z0-9_\-]+)*$'
 op = False
-
 ye = ''
+consoleDir = ">>> "
 
 
 while not op:
-    ye = input(">>> ")
+
+    ye = input(consoleDir)
+
+    if re.match(createRegex, ye):
+        dirname = ye.split(' ')[-1]
+        print(dirname)
 
     if ye == 'exit':
         op = True
