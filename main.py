@@ -5,12 +5,14 @@ print('\nwelcome to fakedfs\n')
 
 # regex para leer el input
 createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
-listRegex = r'^list\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+listRegex = r'^list'
+# listRegex = r'^list\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 disableRegex = r'^disable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
-Is_enabledRegex = r'^is enabled\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+Is_enabledRegex = r'^isEnabled\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 AlterRegex = r'^alter\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DropRegex = r'^drop\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
-DropAllRegex = r'^drop all\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+DropAllRegex = r'^drop_all'
+# DropAllRegex = r'^drop_all\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$' #If also doing with regex, then need to change this regex to accept drop_all only aswell
 DescribeRegex = r'^describe\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 
 op = False
@@ -18,32 +20,44 @@ ye = ''
 consoleDir = ">>> "
 
 
+
+#Creates DataBase Folder if it doesn't exist
+if not os.path.exists(DataBasePath):
+    os.makedirs(DataBasePath)
+
 while not op:
 
     ye = input(consoleDir)
 
+    command = ye.split(' ')[1:] #Split input into array
+    command = [x.replace("'", "").strip(",") for x in command] #Remove extra ' and ,
+    
     # Create 
     if re.match(createRegex, ye):
-        dirname = ye.split(' ')[1:]
-        for i in dirname:
-            if i[-1] == ',':
-                dirname = i[:-1]
+        create(command)
+    
         
-
-        print(dirname)
-
     # List
-
+    if re.match(listRegex, ye):
+        hlist()
 
     # Disable
+    if re.match(disableRegex, ye):
+        disable(command)
 
     # Is_enabled
+    if re.match(Is_enabledRegex, ye):
+        isEnabled(command)
 
     # Alter
 
     # Drop
+    if re.match(DropRegex, ye):
+        drop(command)
 
     # Drop all
+    if re.match(DropAllRegex, ye):
+        dropAll()
 
     # Describe
 
