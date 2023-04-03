@@ -3,7 +3,7 @@ import re
 
 print('\nwelcome to fakedfs\n')
 
-# regex para leer el input
+#region regex para leer el input
 createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 listRegex = r'^list'
 # listRegex = r'^list\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
@@ -14,6 +14,10 @@ DropRegex = r'^drop\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DropAllRegex = r'^drop_all'
 # DropAllRegex = r'^drop_all\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$' #If also doing with regex, then need to change this regex to accept drop_all only aswell
 DescribeRegex = r'^describe\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+
+PutRegex = r'^put\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+#endregion
+
 
 op = False
 ye = ''
@@ -32,10 +36,10 @@ while not op:
     command = ye.split(' ')[1:] #Split input into array
     command = [x.replace("'", "").strip(",") for x in command] #Remove extra ' and ,
     
+    #region lenguaje de definicion de datos
     # Create 
     if re.match(createRegex, ye):
         create(command)
-    
         
     # List
     if re.match(listRegex, ye):
@@ -61,6 +65,38 @@ while not op:
         dropAll()
 
     # Describe
+    if re.match(DescribeRegex, ye):
+        describe(command)
+
+    #endregion
+
+    #region lenguaje de manipulacion de datos
+    # Put
+    if re.match(PutRegex, ye):
+        put(command)
+
+    # Put
+
+    # Get
+
+    # Scan
+
+    # Delete
+
+    # DeleteAll
+
+    # Count
+
+    # Truncate
+
+    #endregion
+
+    #region puntos extras
+    # Update Many
+
+    # Insert Many
+
+    #endregion
 
     if ye == 'exit':
         op = True
