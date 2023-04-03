@@ -50,7 +50,8 @@ while not op:
         isEnabled(command)
 
     # Alter
-
+    if re.match(AlterRegex, ye):
+        alter(command)
     # Drop
     if re.match(DropRegex, ye):
         drop(command)

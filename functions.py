@@ -8,7 +8,7 @@ DataBasePath = os.path.join(current_dir, subfolder_name)
 
 # lenguaje de definicion de datos
 
-def create(command):
+def create(command): 
     startTime = time.time() #Start timer
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
     disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
@@ -16,9 +16,21 @@ def create(command):
     if not os.path.exists(fileName): #If file doesn't exist create
         if not os.path.exists(disbaledFileName): #If disabled file doesn't exist create
             cols = command[1:] #Get column names, everything except first value
+            if len(cols) == 0: #No columns specified throw error
+                cols.append("Default")
 
-            df_cols = pd.DataFrame(columns=cols)
-            df_cols.to_csv(fileName, index=False)
+            #Set Default column properties
+            properties = ["DATA_BLOCK_ENCODING='NONE'", "BLOOMFILTER='ROW'", 
+                          "REPLICATION_SCOPE='0'", "COMPRESSION='NONE'", "TTL='FOREVER'",
+                          "KEEP_DELETED_CELLS='FALSE'", "BLOCKSIZE='65536'",
+                          "IN_MEMORY='FALSE'", "BLOCKCACHE='FALSE'"]
+            data = {col: [] for col in cols}
+            for col in cols:
+               data[col] = properties
+            
+            #Create CSV
+            df = pd.DataFrame(data, columns=cols)
+            df.to_csv(fileName, index=False)
 
             endTime = time.time() #End Timer
             elapsedTime = endTime - startTime #Get Run time
@@ -79,7 +91,7 @@ def isEnabled(command):
             print("false")
 
 
-def alter():
+def alter(command):
     pass
 
 
