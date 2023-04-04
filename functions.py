@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import time
+import warnings
 
 current_dir = os.getcwd()
 subfolder_name = 'DataBase'
@@ -173,30 +174,55 @@ def describe(command):
 #region lenguaje de manipulacion de datos
 
 def put(command):
+    warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
     startTime = time.time() #Start timer
-    print(command)
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
     disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
     if os.path.exists(fileName): #If file exists get data
         df = pd.read_csv(fileName)
-        column = df.columns
+        #Split the column family and column into another array
         commandColumn = command[2].split(":")
-        RowId = df["RowId"]
-        columnValues = df[commandColumn[0]]
-        if command[1] in RowId: #The RowId exists in this table
-            if commandColumn[1] in df[commandColumn[0]]: #If the column exists in column family, then needs to update that column
-                pass
-        else: #if RowId doesnt exist in column family then needs to create it
-            pass
-            '''
-                Try adding it this way maybe
-                new_row_values = ['Dave', 40, 'Male']
-                new_row = dict(zip(cols, new_row_values))
-                df = pd.DataFrame(columns=cols)
-                df = df.append(new_row, ignore_index=True)
-            '''
+        #If Inputted RowId doesnt exist then create new Row
+        if command[1] not in df["RowId"].values: 
+            newRow = {'RowId': command[1]}
+            if commandColumn[0] in df.columns:
+                newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                
+                df = df.append(newRow, ignore_index=True)
+                df.to_csv(fileName, index=False)
+                endTime = time.time() #End Timer
+                elapsedTime = endTime - startTime #Get Run time
+                print(f"0 row(s) in  {elapsedTime:.5f} seconds")
 
+        #If Inputted RowId exists, then edit that Row
+        else:
+            # Filter the rows based on the RowId and additional criteria
+            mask = (df['RowId'] == command[1]) & (df[commandColumn[0]].str.contains(commandColumn[1]))
+            rows = df.loc[mask]
+
+            if len(rows) == 0:
+                # If the correct row is not found, add a new row with the given RowId
+                newRow = {'RowId': command[1]}
+                if commandColumn[0] in df.columns:
+                    newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    
+                df = df.append(newRow, ignore_index=True)
+                df.to_csv(fileName, index=False)
+                endTime = time.time() #End Timer
+                elapsedTime = endTime - startTime #Get Run time
+                print(f"0 row(s) in  {elapsedTime:.5f} seconds")
+
+            else:
+                # Edit the first row that matches the criteria
+                rowIndex = rows.index[0]
+                df.at[rowIndex, commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                df.to_csv(fileName, index=False)
+                endTime = time.time() #End Timer
+                elapsedTime = endTime - startTime #Get Run time
+                print(f"0 row(s) in  {elapsedTime:.5f} seconds")
+
+        
 
 def get():
     pass
