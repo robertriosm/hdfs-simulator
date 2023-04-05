@@ -75,10 +75,8 @@ while not op:
     if re.match(PutRegex, ye):
         put(command)
 
-    # Put
-
     # Get
-
+    
     # Scan
 
     # Delete
