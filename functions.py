@@ -12,15 +12,16 @@ DataBasePath = os.path.join(current_dir, subfolder_name)
 def create(command): 
     startTime = time.time() #Start timer
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
     if not os.path.exists(fileName): #If file doesn't exist create
-        if not os.path.exists(disbaledFileName): #If disabled file doesn't exist create
+        if not os.path.exists(disabledFileName): #If disabled file doesn't exist create
             cols = command[1:] #Get column names, everything except first value
             if len(cols) == 0: #No columns specified throw error
                 cols.append("Default")
 
             cols.insert(0, "RowId")
+            cols.insert(len(cols),"timestamp")
             #Set Default column properties
             properties = ["DATA_BLOCK_ENCODING='NONE'", "BLOOMFILTER='ROW'", 
                           "REPLICATION_SCOPE='0'", "COMPRESSION='NONE'", "TTL='FOREVER'",
@@ -29,6 +30,7 @@ def create(command):
             data = {col: [] for col in cols}
             for col in cols:
                data[col] = properties
+            
             
             #Create CSV
             df = pd.DataFrame(data, columns=cols)
@@ -64,9 +66,9 @@ def hlist():
 def disable(command):
     startTime = time.time() #Start timer
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
-    if not os.path.exists(disbaledFileName): #If the disabled table doesnt exist
+    if not os.path.exists(disabledFileName): #If the disabled table doesnt exist
         if not os.path.exists(fileName): #If file doesn't exist throw error
             print("ERROR: Table ", command[0], " not found")
         else: #File exists, so disable (Disable by renaming)
@@ -82,14 +84,14 @@ def disable(command):
     
 def isEnabled(command):
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
-    if not os.path.exists(fileName) and not os.path.exists(disbaledFileName): #If both enabled and Disabled files dont exist throw error
+    if not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
         print("ERROR: Table ", command[0], " not found")
     else: #If one of them exists check which one
         if os.path.exists(fileName): #Enabled table exists, so return true
             print("true")
-        elif os.path.exists(disbaledFileName): #Disabled table exists, so return false
+        elif os.path.exists(disabledFileName): #Disabled table exists, so return false
             print("false")
 
 
@@ -106,15 +108,15 @@ def alter(command):
 
 def drop(command):
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
-    if not os.path.exists(fileName) and not os.path.exists(disbaledFileName): #If both enabled and Disabled files dont exist throw error
+    if not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
         print("ERROR: Table ", command[0], " not found")
     else: #If one of them exists check which one
         if os.path.exists(fileName): #Enabled table exists, so return error that it needs to be disabled first
             print("ERROR: Table ", command[0], " should be disabled before dropping")
-        elif os.path.exists(disbaledFileName): #Disabled table exists, so delete the file
-            os.remove(disbaledFileName)
+        elif os.path.exists(disabledFileName): #Disabled table exists, so delete the file
+            os.remove(disabledFileName)
             print()
 
 
@@ -139,7 +141,7 @@ def dropAll(): #Idk if need to implement with regex argument, Did it without for
 def describe(command):
     startTime = time.time() #Start timer
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
     if os.path.exists(fileName): #If file exists get data
         df = pd.read_csv(fileName)
@@ -163,10 +165,10 @@ def describe(command):
         elapsedTime = endTime - startTime #Get Run time
         print(len(df.columns), f"row(s) in  {elapsedTime:.5f} seconds")
 
-    elif os.path.exists(disbaledFileName): #Disbaled file exists, throw error
+    elif os.path.exists(disabledFileName): #Disbaled file exists, throw error
         print("ERROR: Table ", command[0], " is disabled")
         print("Cannot describe a disabled table")
-    elif not os.path.exists(fileName) and not os.path.exists(disbaledFileName): #If both enabled and Disabled files dont exist throw error
+    elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
         print("ERROR: Table ", command[0], " not found")
     
 #endregion
@@ -177,7 +179,7 @@ def put(command):
     warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
     startTime = time.time() #Start timer
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disbaledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
     if os.path.exists(fileName): #If file exists get data
         df = pd.read_csv(fileName)
@@ -188,12 +190,14 @@ def put(command):
             newRow = {'RowId': command[1]}
             if commandColumn[0] in df.columns:
                 newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
-                
+                timestamp = int(time.time() * 1000)
+                hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                newRow['timestamp'] = hbase_timestamp
                 df = df.append(newRow, ignore_index=True)
                 df.to_csv(fileName, index=False)
                 endTime = time.time() #End Timer
                 elapsedTime = endTime - startTime #Get Run time
-                print(f"0 row(s) in  {elapsedTime:.5f} seconds")
+                print(f"1 row(s) in  {elapsedTime:.5f} seconds")
 
         #If Inputted RowId exists, then edit that Row
         else:
@@ -206,44 +210,139 @@ def put(command):
                 newRow = {'RowId': command[1]}
                 if commandColumn[0] in df.columns:
                     newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
-                    
+                
+                timestamp = int(time.time() * 1000)
+                hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                newRow['timestamp'] = hbase_timestamp
                 df = df.append(newRow, ignore_index=True)
                 df.to_csv(fileName, index=False)
                 endTime = time.time() #End Timer
                 elapsedTime = endTime - startTime #Get Run time
-                print(f"0 row(s) in  {elapsedTime:.5f} seconds")
+                print(f"1 row(s) in  {elapsedTime:.5f} seconds")
 
             else:
                 # Edit the first row that matches the criteria
                 rowIndex = rows.index[0]
                 df.at[rowIndex, commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                timestamp = int(time.time() * 1000)
+                hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                df.at[rowIndex, 'timestamp'] = hbase_timestamp
                 df.to_csv(fileName, index=False)
                 endTime = time.time() #End Timer
                 elapsedTime = endTime - startTime #Get Run time
-                print(f"0 row(s) in  {elapsedTime:.5f} seconds")
+                print(f"1 row(s) in  {elapsedTime:.5f} seconds")
 
+    elif os.path.exists(disabledFileName): #Disbaled file exists, throw error
+        print("ERROR: Table ", command[0], " is disabled")
+        print("Cannot describe a disabled table")
+    elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
+
+def get(command):
+    warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+    startTime = time.time() #Start timer
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    if os.path.exists(fileName): # If file exists get data
+        df = pd.read_csv(fileName)
+
+        if command[1] in df["RowId"].values: # If RowId exists continues
+            selected_rows = df.loc[df["RowId"] == command[1]] # Selects the individual rows
+            row_counter = len(selected_rows)
+
+            row_data = []
+            timestamp_data = []
+            for row_index in range(row_counter): # Separates the data of the row (basically cleaning the data)
+                row = selected_rows.iloc[row_index]
+                row = row.dropna()
+                row_data.append(row[1].split(':'))
+                timestamp_data.append(row[2])
+            
+            RowId = row[0]
+            result_df = pd.DataFrame(columns=['COLUMN', 'CELL'])
+
+            timestamp_index = 0
+            for rows in row_data: # Sets the correct format for the data to print into
+                new_row = {'COLUMN':f'{RowId}:{rows[0]}', "CELL":f'timestamp={timestamp_data[timestamp_index]}, value={rows[1]}'}
+                result_df = result_df.append(new_row, ignore_index=True)
+                timestamp_index += 1
+
+            print(result_df.to_string(index=False))
+            endTime = time.time() # End timer
+            elapsedTime = endTime - startTime # Get run time
+            print(f"{row_counter} row(s) in {elapsedTime:.5f} seconds")
+            
+        else: # In case row is not found
+            endTime = time.time()
+            elapsedTime = endTime - startTime
+            print(f'0 row(s) in {elapsedTime:.5f} seconds')
+
+    elif os.path.exists(disabledFileName): #Disabled file exists, throw error
+        print("ERROR: Table ", command[0], " is disabled")
+        print("Cannot describe a disabled table")
+    elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
+    
+
+
+def scan(command):
+    warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+    startTime = time.time() #Start timer
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    if os.path.exists(fileName): # If file exists get data
+        df = pd.read_csv(fileName)
+        df = df.drop(df.index[0:9]) # Drops the column metadata
+        row_counter = df['RowId'].nunique() # Counts the amount of rows there is (Only accounting for the row Id)
+
+
+        row_data = []
+        for row_index in range(len(df)):
+            row = df.iloc[row_index]
+            row = row.dropna()
+            row_data.append(row)
+
+        result_df = pd.DataFrame(columns=["ROW", "COLUMN+CELL"])
+
+        for row in row_data:
+            row_id = row[0]
+            value_data = row[1].split(':')
+            timestamp = row[2]
+            new_row = {'ROW': row_id, 'COLUMN+CELL': f'column={row.index[1]}:{value_data[0]}, timestamp={timestamp}, value={value_data[1]}'}
+            result_df = result_df.append(new_row, ignore_index=True)
         
+        print(result_df.to_string(index=False))
+        endTime = time.time() # End timer
+        elapsedTime = endTime - startTime # Get run time
+        print(f"{row_counter} row(s) in {elapsedTime:.5f} seconds")
 
-def get():
+    elif os.path.exists(disabledFileName): #Disabled file exists, throw error
+        print("ERROR: Table ", command[0], " is disabled")
+        print("Cannot describe a disabled table")
+    elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
+
+
+def delete(command):
     pass
 
 
-def scan():
+
+def deleteAll(command):
     pass
 
 
-def delete():
-    pass
+def count(command):
+    warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+    startTime = time.time() #Start timer
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    if os.path.exists(fileName): # If file exists get data
+        df = pd.read_csv(fileName)
+        df = df.drop(df.index[0:9]) # Drops the column metadata
 
-
-
-def deleteAll():
-    pass
-
-
-def count():
-    pass
-
+        row_counter = df['RowId'].nunique() # Counts the amount of rows (Only accounting for unique rowids inside the csv)
+        print(f"COUNT\n{row_counter}")
 
 
 def truncate():

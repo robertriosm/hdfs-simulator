@@ -21,6 +21,7 @@ GetRegex = r'^get\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 ScanRegex = r'^scan\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DeleteRegex = r'^delete\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DeleteAllRegex = r'^deleteall\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+CountRegex = r'^count\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 
 #endregion
 
@@ -82,22 +83,24 @@ while not op:
         put(command)
 
     # Get
-    if re.match(GetRegex, console_input):
-        get(command)
+    if re.match(GetRegex, console_input): # Obtiene una sola linea de data
+        get(command) # get '<table name>', 'row id'
     
     # Scan
-    if re.match(ScanRegex, console_input):
-        scan(command)
+    if re.match(ScanRegex, console_input): # Obtiene toda una tabla en formato HTable
+        scan(command) # scan '<table name>'
 
     # Delete
-    if re.match(DeleteRegex, console_input):
-        delete(command)
+    if re.match(DeleteRegex, console_input): # Borra toda una fila (incluyendo todas las celdas de la fila )
+        delete(command) # delete '<table name>', '<row>', '<column name>', '<time stamp>'
 
     # DeleteAll
-    if re.match(DeleteAllRegex, console_input):
-        deleteAll(command)
+    if re.match(DeleteAllRegex, console_input): 
+        deleteAll(command) # deletaall '<table name>', '<row>'
 
     # Count
+    if re.match(CountRegex, console_input): # Cuenta el numero de filas de la tabla
+        count(command) # count '<table name>'
 
     # Truncate
 
