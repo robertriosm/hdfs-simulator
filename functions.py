@@ -324,13 +324,53 @@ def scan(command):
 
 
 def delete(command):
-    pass
+    warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    if os.path.exists(fileName): # If file exists get data
+        df = pd.read_csv(fileName)
 
+        if command[1] in df["RowId"].values:
+            selected_rows = df.loc[df["RowId"] == command[1]] # Selects the individual rows
 
+            if len(command) > 2: # In case the column_family:column parameter is found, the specified column data will be deleted
+                column_data = command[2].split(':')
+                try:
+                    selected_rows = selected_rows[column_data[0]]
+                except KeyError:
+                    print('ERROR: Cannot delete cell from a non-existent column_family:column parameter')
+                    return 
+                selected_rows = selected_rows.dropna()
+                print(selected_rows)
+
+            else: # In case only the row parameter is found, the whole row will be deleted
+                df = df.drop(df[df.apply(lambda x: x.str.contains(command[1])).any(axis=1)].index)
+                df.to_csv(fileName, index=False)
+
+        else: # In case row is not found
+            print("ERROR: Cannot delete row from a non-existent row key")
+
+    elif os.path.exists(disabledFileName): #Disabled file exists, throw error
+        print("ERROR: Table ", command[0], " is disabled")
+        print("Cannot describe a disabled table")
+    elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
 
 def deleteAll(command):
-    pass
+    warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+    startTime = time.time() #Start timer
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+    if os.path.exists(fileName): # If file exists get data
+        df = pd.read_csv(fileName)
 
+
+
+    elif os.path.exists(disabledFileName): #Disabled file exists, throw error
+        print("ERROR: Table ", command[0], " is disabled")
+        print("Cannot describe a disabled table")
+    elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
 
 def count(command):
     warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
