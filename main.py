@@ -16,11 +16,17 @@ DropAllRegex = r'^drop_all'
 DescribeRegex = r'^describe\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 
 PutRegex = r'^put\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+
+GetRegex = r'^get\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+ScanRegex = r'^scan\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+DeleteRegex = r'^delete\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+DeleteAllRegex = r'^deleteall\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+
 #endregion
 
 
 op = False
-ye = ''
+console_input = ''
 consoleDir = ">>> "
 
 
@@ -31,57 +37,65 @@ if not os.path.exists(DataBasePath):
 
 while not op:
 
-    ye = input(consoleDir)
+    console_input = input(consoleDir)
 
-    command = ye.split(' ')[1:] #Split input into array
+    command = console_input.split(' ')[1:] #Split input into array
     command = [x.replace("'", "").strip(",") for x in command] #Remove extra ' and ,
     
     #region lenguaje de definicion de datos
     # Create 
-    if re.match(createRegex, ye):
+    if re.match(createRegex, console_input):
         create(command)
         
     # List
-    if re.match(listRegex, ye):
+    if re.match(listRegex, console_input):
         hlist()
 
     # Disable
-    if re.match(disableRegex, ye):
+    if re.match(disableRegex, console_input):
         disable(command)
 
     # Is_enabled
-    if re.match(Is_enabledRegex, ye):
+    if re.match(Is_enabledRegex, console_input):
         isEnabled(command)
 
     # Alter
-    if re.match(AlterRegex, ye):
+    if re.match(AlterRegex, console_input): # Aun no implementado !!
         alter(command)
     # Drop
-    if re.match(DropRegex, ye):
+    if re.match(DropRegex, console_input):
         drop(command)
 
     # Drop all
-    if re.match(DropAllRegex, ye):
+    if re.match(DropAllRegex, console_input):
         dropAll()
 
     # Describe
-    if re.match(DescribeRegex, ye):
+    if re.match(DescribeRegex, console_input):
         describe(command)
 
     #endregion
 
     #region lenguaje de manipulacion de datos
     # Put
-    if re.match(PutRegex, ye):
+    if re.match(PutRegex, console_input):
         put(command)
 
     # Get
+    if re.match(GetRegex, console_input):
+        get(command)
     
     # Scan
+    if re.match(ScanRegex, console_input):
+        scan(command)
 
     # Delete
+    if re.match(DeleteRegex, console_input):
+        delete(command)
 
     # DeleteAll
+    if re.match(DeleteAllRegex, console_input):
+        deleteAll(command)
 
     # Count
 
@@ -96,7 +110,7 @@ while not op:
 
     #endregion
 
-    if ye == 'exit':
+    if console_input == 'exit':
         op = True
         print("""
                                                          
