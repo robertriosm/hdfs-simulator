@@ -146,24 +146,32 @@ def describe(command):
     if os.path.exists(fileName): #If file exists get data
         df = pd.read_csv(fileName)
         print("Table", command[0], "is ENABLED\n" + command[0] + "\nCOLUMN FAMILIES DESCRIPTION")
+        notUsedColumn = 0
         for column in df.columns:
-            values = df[column]
-            newValues = {string.split('=')[0]: string.split('=')[1] for string in values}
-            
-            print("{NAME => '", column, "',", end=' ')
-            print("DATA_BLOCK_ENCODING =>", newValues["DATA_BLOCK_ENCODING"], ",", end=' ')
-            print("BLOOMFILTER =>", newValues["BLOOMFILTER"], ",", end=' ')
-            print("REPLICATION_SCOPE =>", newValues["REPLICATION_SCOPE"], ",", end=' ')
-            print("COMPRESSION =>", newValues["COMPRESSION"], ",", end=' ')
-            print("TTL =>", newValues["TTL"], ",", end=' ')
-            print("KEEP_DELETED_CELLS =>", newValues["KEEP_DELETED_CELLS"], ",", end=' ')
-            print("BLOCKSIZE =>", newValues["BLOCKSIZE"], ",", end=' ')
-            print("IN_MEMORY =>", newValues["IN_MEMORY"], ",", end=' ')
-            print("BLOCKCACHE =>", newValues["BLOCKCACHE"])
+            if column == 'RowId' or column == 'timestamp':
+                notUsedColumn += 1
+            else:
+                values = df[column]
+                newValues = {}
+                for i, string in enumerate(values):
+                    if i >= 9:
+                        break
+                    key, value = string.split('=')
+                    newValues[key] = value
+                print("{NAME => '", column, "',", end=' ')
+                print("DATA_BLOCK_ENCODING =>", newValues["DATA_BLOCK_ENCODING"], ",", end=' ')
+                print("BLOOMFILTER =>", newValues["BLOOMFILTER"], ",", end=' ')
+                print("REPLICATION_SCOPE =>", newValues["REPLICATION_SCOPE"], ",", end=' ')
+                print("COMPRESSION =>", newValues["COMPRESSION"], ",", end=' ')
+                print("TTL =>", newValues["TTL"], ",", end=' ')
+                print("KEEP_DELETED_CELLS =>", newValues["KEEP_DELETED_CELLS"], ",", end=' ')
+                print("BLOCKSIZE =>", newValues["BLOCKSIZE"], ",", end=' ')
+                print("IN_MEMORY =>", newValues["IN_MEMORY"], ",", end=' ')
+                print("BLOCKCACHE =>", newValues["BLOCKCACHE"])
 
         endTime = time.time() #End Timer
         elapsedTime = endTime - startTime #Get Run time
-        print(len(df.columns), f"row(s) in  {elapsedTime:.5f} seconds")
+        print(len(df.columns) - notUsedColumn, f"row(s) in  {elapsedTime:.5f} seconds")
 
     elif os.path.exists(disabledFileName): #Disbaled file exists, throw error
         print("ERROR: Table ", command[0], " is disabled")

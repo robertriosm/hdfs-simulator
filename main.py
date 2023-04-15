@@ -48,7 +48,7 @@ while not op:
     if re.match(createRegex, console_input):
         create(command)
         
-    # List
+    # ListS
     if re.match(listRegex, console_input):
         hlist()
 
