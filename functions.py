@@ -339,17 +339,19 @@ def delete(command):
         df = pd.read_csv(fileName)
 
         if command[1] in df["RowId"].values:
-            selected_rows = df.loc[df["RowId"] == command[1]] # Selects the individual rows
 
             if len(command) > 2: # In case the column_family:column parameter is found, the specified column data will be deleted
                 column_data = command[2].split(':')
-                try:
-                    selected_rows = selected_rows[column_data[0]]
-                except KeyError:
-                    print('ERROR: Cannot delete cell from a non-existent column_family:column parameter')
-                    return 
-                selected_rows = selected_rows.dropna()
-                print(selected_rows)
+                column_family_name = column_data[0]
+                column_name = column_data[1]
+
+                row_to_delete = (df['RowId'] == command[1]) & (df[column_family_name].str.contains(column_name))
+
+                print(row_to_delete)
+
+                df = df.drop(df[row_to_delete].index)
+                df.to_csv(fileName, index=False)
+
 
             else: # In case only the row parameter is found, the whole row will be deleted
                 df = df.drop(df[df.apply(lambda x: x.str.contains(command[1])).any(axis=1)].index)
