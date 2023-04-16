@@ -347,8 +347,6 @@ def delete(command):
 
                 row_to_delete = (df['RowId'] == command[1]) & (df[column_family_name].str.contains(column_name))
 
-                print(row_to_delete)
-
                 df = df.drop(df[row_to_delete].index)
                 df.to_csv(fileName, index=False)
 
@@ -373,6 +371,23 @@ def deleteAll(command):
     disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
     if os.path.exists(fileName): # If file exists get data
         df = pd.read_csv(fileName)
+
+        if command[1] in df["RowId"].values:
+
+            if len(command) > 2: # In case the endrow parameter is found, specified range of rows will be deleted
+                startrow = command[1]
+                endrow = command[2]
+
+                df = df.loc[~((df['RowId'] >= startrow) & (df['RowId'] <= endrow))]
+
+                df.to_csv(fileName, index=False)
+
+            else: # In case only the row parameter is found, the whole row will be deleted
+                df = df.drop(df[df.apply(lambda x: x.str.contains(command[1])).any(axis=1)].index)
+                df.to_csv(fileName, index=False)
+
+        else: # In case row is not found
+            print("ERROR: Cannot delete row from a non-existent row key")
 
 
 
