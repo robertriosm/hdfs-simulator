@@ -1,28 +1,47 @@
+"""
+UNIVERSIDAD DEL VALLE DE GUATEMALA
+BASES DE DATOS 2
+
+PROYECTO 2: 
+HDFS SIMULATOR
+
+INTEGRANTES:
+JUN WOO LEE, 20979
+ANDRES DE LA ROCA, 20979
+ROBERTO RIOS, 20979
+
+ESTE PROGRAMA ES EL CONTROLADOR, IMPLEMENTA UN MENU SIMPLE QUE SIMULA SER UNA TERMINAL DE HDFS
+"""
+
 from functions import *
 import re
+from strings import *
 
-print('\nwelcome to fakedfs\n')
+
+print(title)
 
 #region regex para leer el input
 createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 listRegex = r'^list'
-# listRegex = r'^list\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 disableRegex = r'^disable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 Is_enabledRegex = r'^isEnabled\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 AlterRegex = r'^alter\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DropRegex = r'^drop\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DropAllRegex = r'^drop_all'
-# DropAllRegex = r'^drop_all\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$' #If also doing with regex, then need to change this regex to accept drop_all only aswell
 DescribeRegex = r'^describe\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 
-PutRegex = r'^put\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 
+PutRegex = r'^put\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 GetRegex = r'^get\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 ScanRegex = r'^scan\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DeleteRegex = r'^delete\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DeleteAllRegex = r'^deleteall\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 CountRegex = r'^count\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+TruncateRegex = r'^truncate\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 
+
+updateManyRegex = r'updateMany^\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+InsertManyRegex = r'^insertMany\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 #endregion
 
 
@@ -32,18 +51,20 @@ consoleDir = ">>> "
 
 
 
-#Creates DataBase Folder if it doesn't exist
+# Creates DataBase Folder if it doesn't exist
 if not os.path.exists(DataBasePath):
     os.makedirs(DataBasePath)
 
 while not op:
 
+    # input
     console_input = input(consoleDir)
-
-    command = console_input.split(' ')[1:] #Split input into array
+    command = console_input.split(' ')[1:] # Split input into array
     command = [x.replace("'", "").strip(",") for x in command] #Remove extra ' and ,
     
+
     #region lenguaje de definicion de datos
+    
     # Create 
     if re.match(createRegex, console_input):
         create(command)
@@ -77,7 +98,9 @@ while not op:
 
     #endregion
 
+
     #region lenguaje de manipulacion de datos
+
     # Put
     if re.match(PutRegex, console_input):
         put(command)
@@ -103,27 +126,25 @@ while not op:
         count(command) # count '<table name>'
 
     # Truncate
+    if re.match(TruncateRegex, console_input): # Cuenta el numero de filas de la tabla
+        count(command) # count '<table name>'
+
 
     #endregion
 
+
     #region puntos extras
+
     # Update Many
+    if re.match(updateManyRegex, console_input): # Cuenta el numero de filas de la tabla
+        count(command) # count '<table name>'
 
     # Insert Many
+    if re.match(InsertManyRegex, console_input): # Cuenta el numero de filas de la tabla
+        count(command) # count '<table name>'
 
     #endregion
 
     if console_input == 'exit':
         op = True
-        print("""
-                                                         
-                            88 88                        
-                            88 ""                        
-                            88                           
-        ,adPPYYba,  ,adPPYb,88 88  ,adPPYba,  ,adPPYba,  
-        ""     `Y8 a8"    `Y88 88 a8"     "8a I8[    ""  
-        ,adPPPPP88 8b       88 88 8b       d8  `"Y8ba,   
-        88,    ,88 "8a,   ,d88 88 "8a,   ,a8" aa    ]8I  
-        `"8bbdP"Y8  `"8bbdP"Y8 88  `"YbbdP"'  `"YbbdP"'  
-                                                                                                   
-        """)
+        print(adios)
