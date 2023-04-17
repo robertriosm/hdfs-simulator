@@ -1,14 +1,43 @@
-# PROYECTO 2: HDFS SIMULATOR
+# Proyecto 2 - HBase
 
-### BASES DE DATOS 2
+## Bases de datos II - Seccion 20
 
-### INTEGRANTES:
+Implementacion de un simulador de HBase desarrollado en Python.
 
-- JUN WOO LEE, 20979
-- ANDRES DE LA ROCA, 20979
-- ROBERTO RIOS, 20979
+### Funciones desarrolladas
 
-### INSTRUCCIONES:
+- Create
+- List
+- Disable
+- Is_enabled
+- Alter
+- Drop
+- Drop All
+- Describe
+- Put
+- Get
+- Scan
+- Delete
+- Delete All
+- Count
+- Truncate
+
+### Autores
+
+👤 Andres de la Roca
+
+- <a href = "https://www.linkedin.com/in/andr%C3%A8s-de-la-roca-pineda-10a40319b/">Linkedin</a>
+- <a href="https://github.com/andresdlRoca">Github</a>
+
+👤 Roberto Rios
+
+- <a href="https://github.com/robertriosm">Github</a>
+
+👤 Jun Woo Lee
+
+- <a href="https://github.com/jwlh00">Github</a>
+
+### Instrucciones:
 
 Lo unico que tiene que hacer para probar este programa es descargar el repositorio y ejecutar el archivo
 `main.py`, esto automaticamente correra el proyecto.
