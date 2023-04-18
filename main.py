@@ -126,7 +126,7 @@ while not op:
 
     # Truncate
     if re.match(TruncateRegex, console_input): # Cuenta el numero de filas de la tabla
-        truncate(command) # count '<table name>'
+        truncate(command) 
 
 
     #endregion
@@ -136,11 +136,11 @@ while not op:
 
     # Update Many
     if re.match(updateManyRegex, console_input): # Cuenta el numero de filas de la tabla
-        count(command) # count '<table name>'
+        updateMany(command) # count '<table name>'
 
     # Insert Many
     if re.match(InsertManyRegex, console_input): # Cuenta el numero de filas de la tabla
-        count(command) # count '<table name>'
+        InsertMany(command) # count '<table name>'
 
     #endregion
 

@@ -122,7 +122,19 @@ def alter(command):
     Modify Column Family properties
     Rename coolumn Family
     '''
-    pass
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+
+    if not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
+    else: #If one of them exists check which one
+        for table in os.listdir(DataBasePath):
+            if "_Disabled.csv" in table:
+                
+                filePath = os.path.join(DataBasePath, table)
+                os.remove(filePath)
+            else:
+                table = table.replace(".csv", "")
 
 
 def drop(command):
@@ -469,12 +481,134 @@ def truncate(command: list[str]):
 
 #region puntos extra
 
+def updateMany(command):
+    for i in command:
+        warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+        startTime = time.time() #Start timer
+        fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+        disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
 
-def updateMany():
-    pass
+        if os.path.exists(fileName): #If file exists get data
+            df = pd.read_csv(fileName)
+            #Split the column family and column into another array
+            commandColumn = command[2].split(":")
+            #If Inputted RowId doesnt exist then create new Row
+            if command[1] not in df["RowId"].values: 
+                newRow = {'RowId': command[1]}
+                if commandColumn[0] in df.columns:
+                    newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    timestamp = int(time.time() * 1000)
+                    hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                    newRow['timestamp'] = hbase_timestamp
+                    df = df.append(newRow, ignore_index=True)
+                    df.to_csv(fileName, index=False)
+                    endTime = time.time() #End Timer
+                    elapsedTime = endTime - startTime #Get Run time
+                    print(f"1 row(s) in  {elapsedTime:.5f} seconds")
+
+            #If Inputted RowId exists, then edit that Row
+            else:
+                # Filter the rows based on the RowId and additional criteria
+                mask = (df['RowId'] == command[1]) & (df[commandColumn[0]].str.contains(commandColumn[1]))
+                rows = df.loc[mask]
+
+                if len(rows) == 0:
+                    # If the correct row is not found, add a new row with the given RowId
+                    newRow = {'RowId': command[1]}
+                    if commandColumn[0] in df.columns:
+                        newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    
+                    timestamp = int(time.time() * 1000)
+                    hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                    newRow['timestamp'] = hbase_timestamp
+                    df = df.append(newRow, ignore_index=True)
+                    df.to_csv(fileName, index=False)
+                    endTime = time.time() #End Timer
+                    elapsedTime = endTime - startTime #Get Run time
+                    print(f"1 row(s) in  {elapsedTime:.5f} seconds")
+
+                else:
+                    # Edit the first row that matches the criteria
+                    rowIndex = rows.index[0]
+                    df.at[rowIndex, commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    timestamp = int(time.time() * 1000)
+                    hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                    df.at[rowIndex, 'timestamp'] = hbase_timestamp
+                    df.to_csv(fileName, index=False)
+                    endTime = time.time() #End Timer
+                    elapsedTime = endTime - startTime #Get Run time
+                    print(f"1 row(s) in  {elapsedTime:.5f} seconds")
+
+        elif os.path.exists(disabledFileName): #Disbaled file exists, throw error
+            print("ERROR: Table ", command[0], " is disabled")
+            print("Cannot describe a disabled table")
+        elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+            print("ERROR: Table ", command[0], " not found")
 
 
-def InsertMany():
-    pass
+def InsertMany(command):
+    for i in command:
+        warnings.filterwarnings("ignore", message="The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.")
+        startTime = time.time() #Start timer
+        fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+        disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+
+        if os.path.exists(fileName): #If file exists get data
+            df = pd.read_csv(fileName)
+            #Split the column family and column into another array
+            commandColumn = command[2].split(":")
+            #If Inputted RowId doesnt exist then create new Row
+            if command[1] not in df["RowId"].values: 
+                newRow = {'RowId': command[1]}
+                if commandColumn[0] in df.columns:
+                    newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    timestamp = int(time.time() * 1000)
+                    hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                    newRow['timestamp'] = hbase_timestamp
+                    df = df.append(newRow, ignore_index=True)
+                    df.to_csv(fileName, index=False)
+                    endTime = time.time() #End Timer
+                    elapsedTime = endTime - startTime #Get Run time
+                    print(f"1 row(s) in  {elapsedTime:.5f} seconds")
+
+            #If Inputted RowId exists, then edit that Row
+            else:
+                # Filter the rows based on the RowId and additional criteria
+                mask = (df['RowId'] == command[1]) & (df[commandColumn[0]].str.contains(commandColumn[1]))
+                rows = df.loc[mask]
+
+                if len(rows) == 0:
+                    # If the correct row is not found, add a new row with the given RowId
+                    newRow = {'RowId': command[1]}
+                    if commandColumn[0] in df.columns:
+                        newRow[commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    
+                    timestamp = int(time.time() * 1000)
+                    hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                    newRow['timestamp'] = hbase_timestamp
+                    df = df.append(newRow, ignore_index=True)
+                    df.to_csv(fileName, index=False)
+                    endTime = time.time() #End Timer
+                    elapsedTime = endTime - startTime #Get Run time
+                    print(f"1 row(s) in  {elapsedTime:.5f} seconds")
+
+                else:
+                    # Edit the first row that matches the criteria
+                    rowIndex = rows.index[0]
+                    df.at[rowIndex, commandColumn[0]] = str(commandColumn[1]) + ":" + str(command[3])
+                    timestamp = int(time.time() * 1000)
+                    hbase_timestamp = (2**64 - timestamp) ^ (2**63)
+                    df.at[rowIndex, 'timestamp'] = hbase_timestamp
+                    df.to_csv(fileName, index=False)
+                    endTime = time.time() #End Timer
+                    elapsedTime = endTime - startTime #Get Run time
+                    print(f"1 row(s) in  {elapsedTime:.5f} seconds")
+
+        elif os.path.exists(disabledFileName): #Disbaled file exists, throw error
+            print("ERROR: Table ", command[0], " is disabled")
+            print("Cannot describe a disabled table")
+        elif not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+            print("ERROR: Table ", command[0], " not found")
+
 
 #endregion
