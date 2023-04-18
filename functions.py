@@ -107,8 +107,11 @@ def isEnabled(command):
     else: #If one of them exists check which one
         if os.path.exists(fileName): #Enabled table exists, so return true
             print("true")
+            return True
         elif os.path.exists(disabledFileName): #Disabled table exists, so return false
             print("false")
+            return False
+
 
 
 def alter(command):
@@ -426,8 +429,41 @@ def count(command):
         print(f"COUNT\n{row_counter}")
 
 
-def truncate():
-    pass
+def truncate(command: list[str]):
+    # check if the length to be truncated was given
+    t = command[0]
+    if not t.isdigit():
+        print('Warning: You need to specify the length to truncate, \nexample: truncate 55,tablename,tablename2')
+    else:
+        print(f' truncating after: {t}')
+        for i in command[1:]:
+            # check if file exists
+            fileName = os.path.join(DataBasePath, i + '.csv') # Get the file path and file name
+            print(f'\nmodifying: {i}')
+            t = int(t) - 1
+            
+            if os.path.isfile(fileName):
+                # save metadata
+                df = pd.read_csv(fileName)
+                dfmeta = df[df['RowId'].str.contains('=')]
+                print(f'\n metadata:\n{dfmeta}')
+                # adjust seek
+                print(f'\n metadata shape:\n{dfmeta.shape}')
+                dfcontent = df[~df['RowId'].str.contains('=')]
+                dfcontent = dfcontent.reset_index(drop=True)
+                print(f'\n before:\n{dfcontent}')
+                print(f'\nbefore truncate:{dfcontent.shape}')
+                dfcontent = dfcontent.truncate(after=t)
+                print(f'\nafter:\n{dfcontent}')
+                print(f'\nafter truncate:{dfcontent.shape}')
+
+                # resultado de truncar
+                result = pd.concat([dfmeta, dfcontent])
+                result.to_csv(fileName, index=False)
+
+            else:
+                print(f'Warning: file {i} not in folder')
+
 
 #endregion
 

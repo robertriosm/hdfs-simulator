@@ -60,9 +60,8 @@ while not op:
     # input
     console_input = input(consoleDir)
     command = console_input.split(' ')[1:] # Split input into array
-    command = [x.replace("'", "").strip(",") for x in command] #Remove extra ' and ,
+    command = [x.replace("'", "").strip(",") for x in command] # Remove extra ' and ,
     
-
     #region lenguaje de definicion de datos
     
     # Create 
@@ -127,7 +126,7 @@ while not op:
 
     # Truncate
     if re.match(TruncateRegex, console_input): # Cuenta el numero de filas de la tabla
-        count(command) # count '<table name>'
+        truncate(command) # count '<table name>'
 
 
     #endregion
