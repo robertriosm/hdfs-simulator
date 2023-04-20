@@ -403,7 +403,7 @@ def scan(command):
     disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
     if os.path.exists(fileName): # If file exists get data
         df = pd.read_csv(fileName)
-        df = df.drop(df.index[0:9]) # Drops the column metadata
+        df = df.drop(df.index[0:4]) # Drops the column metadata
         row_counter = df['RowId'].nunique() # Counts the amount of rows there is (Only accounting for the row Id)
 
 
