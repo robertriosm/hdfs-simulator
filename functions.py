@@ -97,6 +97,25 @@ def disable(command):
     else: #If the disabled table exists
         print("Error: Table ", command[0], " is already disabled")
 
+def enable(command):
+    startTime = time.time() #Start timer
+    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+
+    if not os.path.exists(fileName): #If the file doesnt exist
+        if os.path.exists(disabledFileName): #If the file disabled file exists
+            NewFileName = os.path.join(DataBasePath, command[0] + ".csv")
+            os.rename(disabledFileName ,NewFileName)
+            endTime = time.time() #End Timer
+            elapsedTime = endTime - startTime #Get Run time
+            print(f"0 row(s) in  {elapsedTime:.5f} seconds")
+            #Change name from Disabled to not disabled
+        else: #If the disabled file doesnt exist
+            print("ERROR: Table ", command[0], " not found")
+        
+    else: #If the disabled table exists
+        print("Error: Table ", command[0], " is already disabled")
+
     
 def isEnabled(command):
     fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
@@ -495,41 +514,48 @@ def count(command):
 
 
 def truncate(command: list[str]):
+    fileName = os.path.join(DataBasePath, command[1] + '.csv') #Get the file path and file name
+    disabledFileName = os.path.join(DataBasePath, command[1] + '_Disabled.csv') #Get the file of the table if it was disabled
 
-        # check if the length to be truncated was given
-        t = command[0]
-        if not t.isdigit():
-            print('Warning: You need to specify the length to truncate, \nexample: truncate 55,tablename,tablename2')
-        else:
-            print(f' truncating after: {t}')
-            for i in command[1:]:
-                # check if file exists
-                fileName = os.path.join(DataBasePath, i + '.csv') # Get the file path and file name
-                print(f'\nmodifying: {i}')
-                t = int(t) - 1
-                
-                if os.path.isfile(fileName):
-                    # save metadata
-                    df = pd.read_csv(fileName)
-                    dfmeta = df[df['RowId'].str.contains('=')]
-                    print(f'\n metadata:\n{dfmeta}')
-                    # adjust seek
-                    print(f'\n metadata shape:\n{dfmeta.shape}')
-                    dfcontent = df[~df['RowId'].str.contains('=')]
-                    dfcontent = dfcontent.reset_index(drop=True)
-                    print(f'\n before:\n{dfcontent}')
-                    print(f'\nbefore truncate:{dfcontent.shape}')
-                    dfcontent = dfcontent.truncate(after=t)
-                    print(f'\nafter:\n{dfcontent}')
-                    print(f'\nafter truncate:{dfcontent.shape}')
+    if not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
+        print("ERROR: Table ", command[0], " not found")
+    else: #If one of them exists check which one
+        if os.path.exists(fileName): #Enabled table exists, so return true
+            t = command[0]
+            if not t.isdigit():
+                print('Warning: You need to specify the length to truncate, \nexample: truncate 55,tablename,tablename2')
+            else:
+                print(f' truncating after: {t}')
+                for i in command[1:]:
+                    # check if file exists
+                    fileName = os.path.join(DataBasePath, i + '.csv') # Get the file path and file name
+                    print(f'\nmodifying: {i}')
+                    t = int(t) - 1
+                    
+                    if os.path.isfile(fileName):
+                        # save metadata
+                        df = pd.read_csv(fileName)
+                        dfmeta = df[df['RowId'].str.contains('=')]
+                        print(f'\n metadata:\n{dfmeta}')
+                        # adjust seek
+                        print(f'\n metadata shape:\n{dfmeta.shape}')
+                        dfcontent = df[~df['RowId'].str.contains('=')]
+                        dfcontent = dfcontent.reset_index(drop=True)
+                        print(f'\n before:\n{dfcontent}')
+                        print(f'\nbefore truncate:{dfcontent.shape}')
+                        dfcontent = dfcontent.truncate(after=t)
+                        print(f'\nafter:\n{dfcontent}')
+                        print(f'\nafter truncate:{dfcontent.shape}')
 
-                    # resultado de truncar
-                    result = pd.concat([dfmeta, dfcontent])
-                    result.to_csv(fileName, index=False)
+                        # resultado de truncar
+                        result = pd.concat([dfmeta, dfcontent])
+                        result.to_csv(fileName, index=False)
 
-                else:
-                    print(f'Warning: file {i} not in folder')
-
+                    else:
+                        print(f'Warning: file {i} not in folder')
+        elif os.path.exists(disabledFileName): #Disabled table exists, so return false
+            print("Cant truncate table if its not disbaled")
+        
 
 
 #endregion

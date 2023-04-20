@@ -24,6 +24,7 @@ print(title)
 createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 listRegex = r'^list'
 disableRegex = r'^disable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
+enableRegex = r'^enable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 Is_enabledRegex = r'^isEnabled\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 AlterRegex = r'^alter\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DropRegex = r'^drop\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
@@ -77,6 +78,10 @@ while not op:
     # Disable
     if re.match(disableRegex, console_input):
         disable(command)
+
+    # Enable
+    if re.match(enableRegex, console_input):
+        enable(command)
 
     # Is_enabled
     if re.match(Is_enabledRegex, console_input):
