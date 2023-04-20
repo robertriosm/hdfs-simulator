@@ -16,6 +16,7 @@ ESTE PROGRAMA ES EL CONTROLADOR, IMPLEMENTA UN MENU SIMPLE QUE SIMULA SER UNA TE
 from functions import *
 import re
 from strings import *
+import random
 
 
 print(title)
@@ -43,7 +44,6 @@ TruncateRegex = r'^truncate\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 updateManyRegex = r'updateMany^\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 InsertManyRegex = r'^insertMany\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 #endregion
-
 
 op = False
 console_input = ''
@@ -102,6 +102,7 @@ while not op:
 
     # Put
     if re.match(PutRegex, console_input):
+        print(command)
         put(command)
 
     # Get
@@ -131,6 +132,10 @@ while not op:
 
     #endregion
 
+    if console_input == 'massiveput':
+        for i in range(1000):
+            command = ['massive_test', f'{random.randint(0,1000)}', f'test_column:{random.randint(0,1000)}', f'{random.randint(0,1000)}']
+            put(command)
 
     #region puntos extras
 
