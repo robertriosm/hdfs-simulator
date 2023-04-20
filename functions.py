@@ -116,14 +116,67 @@ def isEnabled(command):
 
 def alter(command):
     '''
-    Implement ways to do:
     New Column Family, the 2 different ways 
     Delete Column family
     Modify Column Family properties
     Rename coolumn Family
+    
+    usage:
+    >>> alter tablename add newcolumn
+    >>> alter tablename drop column
+    >>> alter tablename rename newname
     '''
-    fileName = os.path.join(DataBasePath, command[0] + '.csv') #Get the file path and file name
-    disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') #Get the file of the table if it was disabled
+
+
+    alterType = command[1]
+
+    if isEnabled(command):
+
+        fileName = os.path.join(DataBasePath, command[0] + '.csv') # Get the file path and file name
+        disabledFileName = os.path.join(DataBasePath, command[0] + '_Disabled.csv') # Get the file of the table if it was disabled
+        df = pd.read_csv(fileName)
+
+
+        if alterType == 'add':
+            newCol = command[2]
+            print("shape antes: ",df.shape)
+            properties = ["DATA_BLOCK_ENCODING='NONE'", "BLOOMFILTER='ROW'", 
+                          "REPLICATION_SCOPE='0'", "COMPRESSION='NONE'", "TTL='FOREVER'",
+                          "KEEP_DELETED_CELLS='FALSE'", "BLOCKSIZE='65536'",
+                          "IN_MEMORY='FALSE'", "BLOCKCACHE='FALSE'"]
+            properties.extend([None for i in range(df.shape[0] - len(properties))])
+            df[newCol] = properties
+            print("shape despues: ",df.shape)
+            df.to_csv(f"DataBase/{command[0]}.csv", index=False)
+            
+
+        elif alterType == 'drop':
+            droped = command[2]
+            print("shape antes: ",df.shape)
+            try:
+                df = df.drop(droped, axis=1)
+            except KeyError as e:
+                print(e)
+            print("shape despues: ",df.shape)
+            df.to_csv(f"DataBase/{command[0]}.csv", index=False)
+
+
+        elif alterType == 'rename':
+            renamed = command[2]
+            df.to_csv(f"DataBase/{renamed}.csv", index=False)
+            os.remove(f"Database/{command[0]}.csv")
+            return
+
+        else:
+            print('the command you entered does not exist')
+            return None
+        
+
+    else:
+        print('the table is not enabled')
+        return None
+
+
 
     if not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
         print("ERROR: Table ", command[0], " not found")
@@ -442,39 +495,41 @@ def count(command):
 
 
 def truncate(command: list[str]):
-    # check if the length to be truncated was given
-    t = command[0]
-    if not t.isdigit():
-        print('Warning: You need to specify the length to truncate, \nexample: truncate 55,tablename,tablename2')
-    else:
-        print(f' truncating after: {t}')
-        for i in command[1:]:
-            # check if file exists
-            fileName = os.path.join(DataBasePath, i + '.csv') # Get the file path and file name
-            print(f'\nmodifying: {i}')
-            t = int(t) - 1
-            
-            if os.path.isfile(fileName):
-                # save metadata
-                df = pd.read_csv(fileName)
-                dfmeta = df[df['RowId'].str.contains('=')]
-                print(f'\n metadata:\n{dfmeta}')
-                # adjust seek
-                print(f'\n metadata shape:\n{dfmeta.shape}')
-                dfcontent = df[~df['RowId'].str.contains('=')]
-                dfcontent = dfcontent.reset_index(drop=True)
-                print(f'\n before:\n{dfcontent}')
-                print(f'\nbefore truncate:{dfcontent.shape}')
-                dfcontent = dfcontent.truncate(after=t)
-                print(f'\nafter:\n{dfcontent}')
-                print(f'\nafter truncate:{dfcontent.shape}')
 
-                # resultado de truncar
-                result = pd.concat([dfmeta, dfcontent])
-                result.to_csv(fileName, index=False)
+        # check if the length to be truncated was given
+        t = command[0]
+        if not t.isdigit():
+            print('Warning: You need to specify the length to truncate, \nexample: truncate 55,tablename,tablename2')
+        else:
+            print(f' truncating after: {t}')
+            for i in command[1:]:
+                # check if file exists
+                fileName = os.path.join(DataBasePath, i + '.csv') # Get the file path and file name
+                print(f'\nmodifying: {i}')
+                t = int(t) - 1
+                
+                if os.path.isfile(fileName):
+                    # save metadata
+                    df = pd.read_csv(fileName)
+                    dfmeta = df[df['RowId'].str.contains('=')]
+                    print(f'\n metadata:\n{dfmeta}')
+                    # adjust seek
+                    print(f'\n metadata shape:\n{dfmeta.shape}')
+                    dfcontent = df[~df['RowId'].str.contains('=')]
+                    dfcontent = dfcontent.reset_index(drop=True)
+                    print(f'\n before:\n{dfcontent}')
+                    print(f'\nbefore truncate:{dfcontent.shape}')
+                    dfcontent = dfcontent.truncate(after=t)
+                    print(f'\nafter:\n{dfcontent}')
+                    print(f'\nafter truncate:{dfcontent.shape}')
 
-            else:
-                print(f'Warning: file {i} not in folder')
+                    # resultado de truncar
+                    result = pd.concat([dfmeta, dfcontent])
+                    result.to_csv(fileName, index=False)
+
+                else:
+                    print(f'Warning: file {i} not in folder')
+
 
 
 #endregion
