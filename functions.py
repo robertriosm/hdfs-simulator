@@ -112,7 +112,7 @@ def enable(command):
             #Change name from Disabled to not disabled
         else: #If the disabled file doesnt exist
             print("ERROR: Table ", command[0], " not found")
-
+        
     else: #If the disabled table exists
         print("Error: Table ", command[0], " is already disabled")
 
@@ -464,11 +464,9 @@ def truncate(command: list[str]):
     disabledFileName = os.path.join(DataBasePath, command[1] + '_Disabled.csv') #Get the file of the table if it was disabled
 
     if not os.path.exists(fileName) and not os.path.exists(disabledFileName): #If both enabled and Disabled files dont exist throw error
-        print("ERROR: Table ", command[1], " not found")
+        print("ERROR: Table ", command[0], " not found")
     else: #If one of them exists check which one
         if os.path.exists(fileName): #Enabled table exists, so return true
-            print("Cant truncate table if its not disbaled")
-        elif os.path.exists(disabledFileName): #Disabled table exists, so return false
             t = command[0]
             if not t.isdigit():
                 print('Warning: You need to specify the length to truncate, \nexample: truncate 55,tablename,tablename2')
@@ -476,12 +474,13 @@ def truncate(command: list[str]):
                 print(f' truncating after: {t}')
                 for i in command[1:]:
                     # check if file exists
+                    fileName = os.path.join(DataBasePath, i + '.csv') # Get the file path and file name
                     print(f'\nmodifying: {i}')
                     t = int(t) - 1
                     
-                    if os.path.isfile(disabledFileName):
+                    if os.path.isfile(fileName):
                         # save metadata
-                        df = pd.read_csv(disabledFileName)
+                        df = pd.read_csv(fileName)
                         dfmeta = df[df['RowId'].str.contains('=')]
                         print(f'\n metadata:\n{dfmeta}')
                         # adjust seek
@@ -496,10 +495,13 @@ def truncate(command: list[str]):
 
                         # resultado de truncar
                         result = pd.concat([dfmeta, dfcontent])
-                        result.to_csv(disabledFileName, index=False)
+                        result.to_csv(fileName, index=False)
 
                     else:
                         print(f'Warning: file {i} not in folder')
+        elif os.path.exists(disabledFileName): #Disabled table exists, so return false
+            print("Cant truncate table if its not disbaled")
+        
 
 
 #endregion

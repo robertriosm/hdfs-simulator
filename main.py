@@ -25,7 +25,7 @@ print(title)
 createRegex = r'^create\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 listRegex = r'^list'
 disableRegex = r'^disable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
-enableRegex = r'^enable\s+([^,\s]+)(?:\s,\s([^,\s]+))*$'
+enableRegex = r'^enable\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 Is_enabledRegex = r'^isEnabled\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 AlterRegex = r'^alter\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
 DropRegex = r'^drop\s+([^,\s]+)(?:\s*,\s*([^,\s]+))*$'
